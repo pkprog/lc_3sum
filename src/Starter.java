@@ -13,7 +13,11 @@ public class Starter {
         System.out.println("***start time:" + sdf.format(new Date()));
         List<List<Integer>> result = new Solution().threeSum(nums);
         System.out.println("***end time:" + sdf.format(new Date()));
-        System.out.println("Result:" + result.toString());
+        if (result.size() <= 20) {
+            System.out.println("Result:" + result);
+        } else {
+            System.out.println("Result:" + " SIZE=" + result.size());
+        }
     }
 
     public static void main(String[] props) {

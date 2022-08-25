@@ -6,98 +6,66 @@ import java.util.stream.Collectors;
 public class Solution {
 
     public static class Triple {
-        int item0;
-        int item1;
-        int item2;
-        final int[] list;
+        final int item0;
+        final int item1;
+        final int item2;
+        final int hasCode;
 
         public Triple(int item0, int item1, int item2) {
-            list = new int[] {item0, item1, item2};
-            this.item0 = item0;
-            this.item1 = item1;
-            this.item2 = item2;
+            int[] a = new int[] {item0, item1, item2};
+            Arrays.sort(a);
+            this.item0 = a[0];
+            this.item1 = a[1];
+            this.item2 = a[2];
+            this.hasCode = createHashCode();
         }
 
-        public boolean equalsTriple(int test0, int test1, int test2) {
-            final boolean[] equalsItemPositions = new boolean[3];
-            boolean foundTriplet = true;
-            for (int i = 0; i < 3; i++) {
-                int item = list[i];
+        @Override
+        public boolean equals(Object o) {
+            Triple triple = (Triple) o;
+            if (item0 != triple.item0) return false;
+            if (item1 != triple.item1) return false;
+            return item2 == triple.item2;
+        }
 
-                boolean found = false;
-                if (!equalsItemPositions[0] && item == test0) {
-                    found = true;
-                    equalsItemPositions[0] = true;
-                } else
-                if (!equalsItemPositions[1] && item == test1) {
-                    found = true;
-                    equalsItemPositions[1] = true;
-                } else
-                if (!equalsItemPositions[2] && item == test2) {
-                    found = true;
-                    equalsItemPositions[2] = true;
-                }
+        private int createHashCode() {
+            int result = item0;
+            result = 31 * result + item1;
+            result = 31 * result + item2;
+            return result;
+        }
 
-                if (!found) {
-                    foundTriplet = false;
-                    break;
-                }
-            }
-
-            return foundTriplet;
+        @Override
+        public int hashCode() {
+            return this.hasCode;
         }
 
         public List<Integer> toList() {
-            return Arrays.asList(list[0], list[1], list[2]);
+            return Arrays.asList(item0, item1, item2);
         }
 
-        public static Triple crTriple(int item0, int item1, int item2) {
+        public static Triple create(int item0, int item1, int item2) {
             return new Triple(item0, item1, item2);
         }
     }
 
-    //true - if exists in Collection
-    private boolean existsItem(List<Triple> list, int item0, int item1, int item2) {
-        for (Triple triple: list) {
-            if (triple.equalsTriple(item0, item1, item2)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean has(List<Integer> nums, int value) {
-        return nums.indexOf(value) > 0;
-    }
-
     public List<List<Integer>> threeSum(int[] nums) {
-        final List<Triple> tempResult = new ArrayList<>(nums.length);
+        final List<Triple> tempResult = new ArrayList<>(30000);
 
-        final List<Integer> prevI = new ArrayList<>(nums.length);
-
-        for (int i = 0; i < nums.length; i++) {
-            if (has(prevI, nums[i])) continue;
-
-            final List<Integer> prevJ = new ArrayList<>(nums.length);
-            for (int j = (i+1); j < nums.length; j++) {
-                if (has(prevJ, nums[j])) continue;
-
+        for (int i = 0; i < nums.length-2; i++) {
+            for (int j = (i+1); j < nums.length-1; j++) {
                 final int minusTemp = -(nums[i] + nums[j]);
                 for (int k = (j+1); k < nums.length; k++) {
                     if (minusTemp == nums[k]) {
-                        if (!existsItem(tempResult, nums[i], nums[j], nums[k])) {
-                            tempResult.add(Triple.crTriple(nums[i], nums[j], nums[k]));
-                        }
+//                        add(tempResult2, nums[i], nums[j], nums[k]);
+                        tempResult.add(Triple.create(nums[i], nums[j], nums[k]));
                     }
                 }
-
-                prevJ.add(nums[j]);
             }
-
-            prevI.add(nums[i]);
         }
 
-        return tempResult.parallelStream().map(t -> t.toList()).collect(Collectors.toList());
+        final List<List<Integer>> result = tempResult.stream().distinct().map(Triple::toList).collect(Collectors.toList());
+        return result;
     }
 
 }
