@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Solution {
 
@@ -14,17 +12,52 @@ public class Solution {
         final int hasCode;
 
         public Triple(int item0, int item1, int item2) {
-            list = Arrays.asList(item0, item1, item2);
-            Collections.sort(list);
-//            int[] a = new int[] {item0, item1, item2};
-//            Arrays.sort(a);
+            this.list = sort3(item0, item1, item2);
             this.item0 = list.get(0);
             this.item1 = list.get(1);
             this.item2 = list.get(2);
-//            this.item0 = a[0];
-//            this.item1 = a[1];
-//            this.item2 = a[2];
             this.hasCode = createHashCode();
+        }
+
+        private List<Integer> sort3(int item0, int item1, int item2) {
+            int min = 0, mid = 0, max = 0;
+
+            if (item0 <= item1 && item0 <= item2) {
+                min = item0;
+                if (item1 < item2) {
+                    mid = item1;
+                    max = item2;
+                } else {
+                    mid = item2;
+                    max = item1;
+                }
+            } else
+            if (item1 <= item0 && item1 <= item2) {
+                min = item1;
+                if (item0 < item2) {
+                    mid = item0;
+                    max = item2;
+                } else {
+                    mid = item2;
+                    max = item0;
+                }
+            } else
+            if (item2 <= item0 && item2 <= item1) {
+                min = item2;
+                if (item0 < item1) {
+                    mid = item0;
+                    max = item1;
+                } else {
+                    mid = item1;
+                    max = item0;
+                }
+            }
+
+            List<Integer> list = new ArrayList<>(3);
+            list.add(min);
+            list.add(mid);
+            list.add(max);
+            return list;
         }
 
         @Override
@@ -47,10 +80,6 @@ public class Solution {
             return this.hasCode;
         }
 
-        public List<Integer> toList() {
-            return this.list; //Arrays.asList(item0, item1, item2);
-        }
-
         public static Triple create(int item0, int item1, int item2) {
             return new Triple(item0, item1, item2);
         }
@@ -59,7 +88,7 @@ public class Solution {
     }
 
     public List<List<Integer>> threeSum(int[] nums) {
-        final List<Triple> tempResult = new ArrayList<>(30000);
+        final List<Triple> tempResult = new ArrayList<>(20000);
         Arrays.sort(nums);
 
         for (int i = 0; i < nums.length-2; i++) {
@@ -67,7 +96,28 @@ public class Solution {
 
             int MAX_K = nums.length-1;
             int j = i+1, k = MAX_K;
-            while (j < k && j < nums.length) {
+            int prevJValue = nums[j];
+            int prevJ = j;
+            int prevKValue = nums[k];
+            int prevK = k;
+            while (j < k && j < nums.length && nums[i] <= nums[j]) {
+                if (prevJ != j && prevJValue == nums[j]) {
+                    prevJ = j;
+                    j++;
+                    k = MAX_K;
+                    continue;
+                }
+                if (prevK != k && prevKValue == nums[k]) {
+                    prevK = k;
+                    k--;
+                    continue;
+                }
+
+                prevJ = j;
+                prevJValue = nums[j];
+                prevK = k;
+                prevKValue = nums[k];
+
                 final int sum = nums[i] + nums[j] + nums[k];
                 if (sum == 0) {
                     tempResult.add(Triple.create(nums[i], nums[j], nums[k]));
@@ -77,11 +127,10 @@ public class Solution {
                     MAX_K = k;
                 } else {
                     if (sum > 0) {
-                        if (j == (k-1)) {
+                        k--;
+                        if (j == k) {
                             j++;
                             k = MAX_K;
-                        } else{
-                            k--;
                         }
                     } else if (sum < 0) {
                         j++;
@@ -91,7 +140,11 @@ public class Solution {
             }
         }
 
-        final List<List<Integer>> result = tempResult.stream().distinct().map(Triple::toList).collect(Collectors.toList());
+        final List<List<Integer>> result = tempResult.stream().distinct().map(t -> t.list).collect(
+                () -> new ArrayList<>(tempResult.size()),
+                (list, item) -> list.add(item),
+                (list1, list2) -> list1.addAll(list2)
+        );
         return result;
     }
 
