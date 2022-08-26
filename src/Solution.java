@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,14 +10,20 @@ public class Solution {
         final int item0;
         final int item1;
         final int item2;
+        final List<Integer> list;
         final int hasCode;
 
         public Triple(int item0, int item1, int item2) {
-            int[] a = new int[] {item0, item1, item2};
-            Arrays.sort(a);
-            this.item0 = a[0];
-            this.item1 = a[1];
-            this.item2 = a[2];
+            list = Arrays.asList(item0, item1, item2);
+            Collections.sort(list);
+//            int[] a = new int[] {item0, item1, item2};
+//            Arrays.sort(a);
+            this.item0 = list.get(0);
+            this.item1 = list.get(1);
+            this.item2 = list.get(2);
+//            this.item0 = a[0];
+//            this.item1 = a[1];
+//            this.item2 = a[2];
             this.hasCode = createHashCode();
         }
 
@@ -41,24 +48,44 @@ public class Solution {
         }
 
         public List<Integer> toList() {
-            return Arrays.asList(item0, item1, item2);
+            return this.list; //Arrays.asList(item0, item1, item2);
         }
 
         public static Triple create(int item0, int item1, int item2) {
             return new Triple(item0, item1, item2);
         }
+        public static void create2(int item0, int item1, int item2) {
+        }
     }
 
     public List<List<Integer>> threeSum(int[] nums) {
         final List<Triple> tempResult = new ArrayList<>(30000);
+        Arrays.sort(nums);
 
         for (int i = 0; i < nums.length-2; i++) {
-            for (int j = (i+1); j < nums.length-1; j++) {
-                final int minusTemp = -(nums[i] + nums[j]);
-                for (int k = (j+1); k < nums.length; k++) {
-                    if (minusTemp == nums[k]) {
-//                        add(tempResult2, nums[i], nums[j], nums[k]);
-                        tempResult.add(Triple.create(nums[i], nums[j], nums[k]));
+            if (i > 0 && nums[i] == nums[i-1]) continue;
+
+            int MAX_K = nums.length-1;
+            int j = i+1, k = MAX_K;
+            while (j < k && j < nums.length) {
+                final int sum = nums[i] + nums[j] + nums[k];
+                if (sum == 0) {
+                    tempResult.add(Triple.create(nums[i], nums[j], nums[k]));
+                    //
+                    j++;
+                    k--;
+                    MAX_K = k;
+                } else {
+                    if (sum > 0) {
+                        if (j == (k-1)) {
+                            j++;
+                            k = MAX_K;
+                        } else{
+                            k--;
+                        }
+                    } else if (sum < 0) {
+                        j++;
+                        k = MAX_K;
                     }
                 }
             }
