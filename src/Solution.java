@@ -91,7 +91,7 @@ public class Solution {
         final List<Triple> tempResult = new ArrayList<>(20000);
         Arrays.sort(nums);
 
-        for (int i = 0; i < nums.length-2; i++) {
+        for (int i = 0; i < (nums.length-2); i++) {
             if (i > 0 && nums[i] == nums[i-1]) continue;
 
             int MAX_K = nums.length-1;
@@ -100,7 +100,7 @@ public class Solution {
             int prevJ = j;
             int prevKValue = nums[k];
             int prevK = k;
-            while (j < k && j < nums.length && nums[i] <= nums[j]) {
+            while (j < k && j < (nums.length-1) && nums[i] <= nums[j]) {
                 if (prevJ != j && prevJValue == nums[j]) {
                     prevJ = j;
                     j++;
@@ -132,7 +132,7 @@ public class Solution {
                             j++;
                             k = MAX_K;
                         }
-                    } else if (sum < 0) {
+                    } else {
                         j++;
                         k = MAX_K;
                     }
